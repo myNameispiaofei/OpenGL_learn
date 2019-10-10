@@ -54,13 +54,6 @@ int main(int argc, const char * argv[]) {
         return -1;
     }
     
-    // 一个顶点  缓冲对象
-    float vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        0.0f,  0.5f, 0.0f,
-    };
-   
     float testRectangle[] = {
         0.5f,  0.5f, 0.0f, //右上
         0.5f, -0.5f, 0.0f, // 右下
@@ -68,18 +61,9 @@ int main(int argc, const char * argv[]) {
         -0.5f, 0.5f, 0.0f, //左上
     };
     
-    float test6Tran[] = {
-        -0.5f,  -0.5f, 0.0f,
-         0.5f,  -0.5f, 0.0f,
-         0.0f,   0.3f, 0.0f,
-        -0.5f,   0.0f, 0.0f,
-         0.5f,   0.0f, 0.0f,
-         0.0f,  -0.8f, 0.0f,
-    };
-    
     unsigned int indices[] = {
-      0, 1, 2,
-      3, 4, 5
+      0, 1, 3,
+      1, 2, 3
     };
     
     
@@ -90,7 +74,7 @@ int main(int argc, const char * argv[]) {
     
     glGenBuffers(1 ,&VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(test6Tran), &test6Tran, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(testRectangle), &testRectangle, GL_STATIC_DRAW);
     
     glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
