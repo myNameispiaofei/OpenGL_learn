@@ -59,16 +59,44 @@ int main(int argc, const char * argv[]) {
         -0.5f, -0.5f, 0.0f,
         0.5f, -0.5f, 0.0f,
         0.0f,  0.5f, 0.0f,
-        1.0f,  0.0f, 0.0f,
     };
    
-    unsigned int VAO, VBO;
+    float testRectangle[] = {
+        0.5f,  0.5f, 0.0f, //右上
+        0.5f, -0.5f, 0.0f, // 右下
+        -0.5f, -0.5f, 0.0f, // 左下
+        -0.5f, 0.5f, 0.0f, //左上
+    };
+    
+    float test6Tran[] = {
+        -0.5f,  -0.5f, 0.0f,
+         0.5f,  -0.5f, 0.0f,
+         0.0f,   0.3f, 0.0f,
+        -0.5f,   0.0f, 0.0f,
+         0.5f,   0.0f, 0.0f,
+         0.0f,  -0.8f, 0.0f,
+    };
+    
+    unsigned int indices[] = {
+      0, 1, 2,
+      3, 4, 5
+    };
+    
+    
+    unsigned int VAO, VBO ,EBO;
+    
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
     
     glGenBuffers(1 ,&VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(test6Tran), &test6Tran, GL_STATIC_DRAW);
+    
+    glGenBuffers(1, &EBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices, GL_STATIC_DRAW);
+    
+    
     
     // 链接顶点属性
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), ((void *)0));
@@ -138,7 +166,8 @@ int main(int argc, const char * argv[]) {
         glClear(GL_COLOR_BUFFER_BIT);
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-        glDrawArrays(GL_TRIANGLES, 1, 3);
+//        glDrawArrays(GL_TRIANGLES, 1, 3);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glfwSwapBuffers(window);
         glfwPollEvents();
         //        glfwPollEvents 检查函数有没有触发什么事件 键盘输入 鼠标移动 并调用对应函数
