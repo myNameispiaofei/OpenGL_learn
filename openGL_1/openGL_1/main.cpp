@@ -10,6 +10,20 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+const char *vertexShaderSource = "#version 330 core\n"
+    "layout (location = 0) in vec3 aPos;\n"
+    "void main()\n"
+    "{\n"
+    "   gl_Position = vec4(aPos.x, aPos.y ,aPos.z, 1.0);\n"
+    "}\n";
+
+const char *fragmentShaderSource = "#version 330 core\n"
+    "out vec4 FragColor;\n"
+    "void main()\n"
+    "{\n"
+    "   FragColor = vec4(1.0f, 0.5f ,0.2f, 1.0);\n"
+    "}\n";
+
 using namespace std;
 int main(int argc, const char * argv[]) {
     glfwInit();
@@ -39,6 +53,64 @@ int main(int argc, const char * argv[]) {
         cout << "Failed to initialize GLAD" << endl;
         return -1;
     }
+    
+    // 一个顶点  缓冲对象
+    float vertices[] = {
+        -0.5f, -0.5f, 0.0f,
+        0.5f, -0.5f, 0.0f,
+        0.0f,  0.5f, 0.0f,
+        1.0f,  0.0f, 0.0f,
+    };
+   
+    unsigned int VAO, VBO;
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+    
+    glGenBuffers(1 ,&VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STATIC_DRAW);
+    
+    // 链接顶点属性
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), ((void *)0));
+    glEnableVertexAttribArray(0);
+    
+    // 一个顶点着色器
+    unsigned int vertexShader;
+    vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glCompileShader(vertexShader);
+    
+    int success;
+    char shaderInfoLog[512];
+    glad_glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    if (!success)
+    {
+        glGetShaderInfoLog(vertexShader, 512, NULL, shaderInfoLog);
+        cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << shaderInfoLog << endl;
+    }
+    
+    //一个片段着色器
+    unsigned int fragmentShader;
+    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragmentShader);
+    
+    //创建着色程序
+    unsigned int shaderProgram;
+    shaderProgram = glCreateProgram();
+    glad_glAttachShader(shaderProgram, vertexShader);
+    glad_glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    if(!success)
+    {
+        glGetProgramInfoLog(shaderProgram, 512, NULL, shaderInfoLog);
+    };
+    glUseProgram(shaderProgram);
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+    
+
     //    创建渲染的视口: 我们必须要告诉OpenGl 需要渲染的尺寸大小，即为视口 viewport(),这样openGL 才能知道根据窗口大小显示数据和坐标。
     //    glViewport 前两个参数控制视口左下角位置，后两个参数控制视口的宽和高
     //    openGL 幕后使用的是glViewport 定义的 位置和宽高进行2D转换
@@ -61,15 +133,17 @@ int main(int argc, const char * argv[]) {
         processInput(window);
         //        glfwSwapBuffers 会交换颜色缓冲（他是存储着GLFW 窗口每一个像素色值的大缓冲），将会作为输出显示在屏幕上
         //        当程序退出的时候 使用一个自定义的颜色清空屏幕  在每个新的渲染迭代可是的时候我们总希望清屏否则总是看到上次渲染的结果。
-        //        我们可以使用glClear   GL_COLOR_BUFFER_BIT，GL_DEPTH_BUFFER_BIT和GL_STENCIL_BUFFER_BIT。 我们清空颜色 。
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        //        我们可以使用glClear   GL_COLOR_BUFFER_BIT，GL_DEPTH_BUFFER_BIT和GL_STENCIL_BUFFER_BIT。 我们清空颜色。
+        glClearColor(0.20f, 0.30f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+        glUseProgram(shaderProgram);
+        glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+        glDrawArrays(GL_TRIANGLES, 1, 3);
         glfwSwapBuffers(window);
-        //        glfwPollEvents 检查函数有没有触发什么事件 键盘输入 鼠标移动 并调用对应函数
         glfwPollEvents();
+        //        glfwPollEvents 检查函数有没有触发什么事件 键盘输入 鼠标移动 并调用对应函数
+        
     }
-    
-    
     glfwTerminate();
     
     return 0;
